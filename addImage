@@ -1,0 +1,121 @@
+@Composable
+fun AndImageSection() {
+
+        var moved by remember { mutableStateOf(false) }
+
+        val pxToMove = with(LocalDensity.current) {
+            -50.dp.toPx().roundToInt()
+        }
+
+        val offsetForGallery by animateIntOffsetAsState(
+            targetValue = if (moved) {
+                IntOffset(pxToMove, pxToMove)
+            } else {
+                IntOffset.Zero
+            },
+            label = "offsetForGallery",
+            animationSpec =
+            spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
+            )
+        )
+        val offsetForCamera by animateIntOffsetAsState(
+            targetValue = if (moved) {
+                IntOffset(-pxToMove, pxToMove)
+            } else {
+                IntOffset.Zero
+            },
+            label = "offsetForCamera",
+            animationSpec =
+            spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
+            )
+
+        )
+        var currentRotation by remember { mutableFloatStateOf(0f) }
+
+        val rotation = remember { androidx.compose.animation.core.Animatable(currentRotation) }
+
+        LaunchedEffect(moved) {
+            if (moved) {
+                rotation.animateTo(
+                    targetValue = currentRotation + 45f,
+                    animationSpec = tween(200)
+                ) {
+                    currentRotation = value
+                }
+            } else {
+                rotation.animateTo(
+                    targetValue = currentRotation - 45,
+                    animationSpec = tween(
+                        durationMillis = 200,
+                    )
+                ) {
+                    currentRotation = value
+                }
+
+            }
+        }
+
+        Box(modifier = Modifier.align(CenterHorizontally)) {
+            Box(
+                Modifier
+                    .offset {
+                        offsetForGallery
+                    }
+                    .padding(bottom = 30.dp)
+                    .size(50.dp)
+                    .clickable {
+                    //  this code for add image form gallery
+                    //    singlePhotoPickerLauncher.launch(
+                    //        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    //    )
+                    }
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.outline), contentAlignment = Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.add_image),
+                    contentDescription = "Add Image",
+                    modifier = Modifier.size(24.dp), tint = Orange0_7
+                )
+            }
+
+            Box(
+                Modifier
+                    .offset {
+                        offsetForCamera
+                    }
+                    .padding(bottom = 30.dp)
+                    .size(50.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.outline), contentAlignment = Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.add_camera),
+                    contentDescription = "Add Image",
+                    modifier = Modifier.size(24.dp), tint = Orange0_7
+                )
+            }
+
+            Box(
+                Modifier
+                    .padding(bottom = 30.dp)
+                    .size(50.dp)
+                    .rotate(rotation.value)
+                    .clip(CircleShape)
+                    .background(White)
+                    .clickable {
+                        moved = !moved
+                    }, contentAlignment = Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.outline_clear_24),
+                    contentDescription = "Add Image",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+}
